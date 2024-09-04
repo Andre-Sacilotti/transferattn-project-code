@@ -1,0 +1,12 @@
+# hardware config
+enable_log: false
+num_workers: 4
+gpu: '1'
+
+# testing config
+eval_epoch_interval: 1
+
+# logging config
+log_step_interval: 5
+comet_api_key: input_your_comet_api_key
+wandb_api_key: input_your_wandb_api_key

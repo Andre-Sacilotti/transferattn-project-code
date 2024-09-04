@@ -1,0 +1,27 @@
+project_name: VDA_K_NEC
+log_step_interval: 5
+gpu: 1
+
+# training config
+epoch: 300
+lr: 0.00003
+# lr_decay_epoch: 200
+lr_decay_epoch: 500
+lr_gamma: 0.2
+batch_size: 64
+adv_coeff: 0.5
+
+# network setting
+bottleneck_dim: 256
+
+# config for domain adaptation
+sampled_frame: 53
+
+
+dataset: K_NEC
+source: kinetics
+target: nec
+
+
+ib_loss: 0.025
+queue_size: 512
