@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
- <a href="https://wacv2025.thecvf.com/" target='_blank'><b>WACV 2025</b></a>
+ <a href="https://wacv2025.thecvf.com/" target='_blank'><b>Accepted at WACV 2025</b></a>
 </p>
 
 <p align="center">

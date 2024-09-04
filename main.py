@@ -47,10 +47,11 @@ params.update(basic_parser)
 params.update(experiment_parser)
 params = Namespace(**params)
 
-torch.manual_seed(params.random_seed)
-torch.cuda.manual_seed_all(params.random_seed)
-np.random.seed(params.random_seed)
-random.seed(params.random_seed)
+if params.random_seed is not None:
+    torch.manual_seed(params.random_seed)
+    torch.cuda.manual_seed_all(params.random_seed)
+    np.random.seed(params.random_seed)
+    random.seed(params.random_seed)
 
 model = get_model(
     hidden_size=HIDDEN_SIZE,
