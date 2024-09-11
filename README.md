@@ -1,19 +1,18 @@
 <br />
 <p align="center">
   
-  <h3 align="center"><strong>TransferAttn:<br>Transferable-guided Attention Is All You Need for Video Domain Adaptation</strong></h3>
+  <h3 align="center"><strong><br>Transferable-guided Attention Is All You Need for Video Domain Adaptation</strong></h3>
 
   <p align="center">
       <a href="https://scholar.google.com/citations?user=xBquKMgAAAAJ" target='_blank'>André Sacilotti</a><sup>1</sup>&nbsp;&nbsp;
       <a href="https://scholar.google.com/citations?user=QT362TYAAAAJ" target='_blank'> Samuel Felipe dos Santos</a><sup>2</sup>&nbsp;&nbsp;
       <a href="https://scholar.google.com/citations?user=stFCYOAAAAAJ" target='_blank'>Nicu Sebe</a><sup>3</sup>&nbsp;&nbsp;
-      <a href="https://scholar.google.com/citations?user=VSc_vDMAAAAJ" target='_blank'>Jurandy Almeida</a><sup>4</sup>&nbsp;&nbsp;
+      <a href="https://scholar.google.com/citations?user=VSc_vDMAAAAJ" target='_blank'>Jurandy Almeida</a><sup>2</sup>&nbsp;&nbsp;
 </p>
     <br>
   <sup>1</sup>University of São Paulo&nbsp;&nbsp;
-  <sup>2</sup>Federal University of São Paulo&nbsp;&nbsp;
+  <sup>2</sup>Federal University of São Carlos&nbsp;&nbsp;
   <sup>3</sup>University of Trento&nbsp;&nbsp;
-  <sup>4</sup>Federal University of São Carlos
   </p>
 </p>
 
