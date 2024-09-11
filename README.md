@@ -12,7 +12,7 @@
     <br>
   <sup>1</sup>University of São Paulo&nbsp;&nbsp;
   <sup>2</sup>Federal University of São Carlos&nbsp;&nbsp;
-  <sup>3</sup>University of Trento&nbsp;&nbsp;
+  <sup>3</sup>University of Trento
   </p>
 </p>
 
