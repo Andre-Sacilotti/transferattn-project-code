@@ -91,11 +91,15 @@ We acknowledge the use of the following public resources in the development of t
 If you find TransferAttn useful for your work please consider citing:
 
 ```bibtex
-@article{sacilotti2024transferattn,
-    title={Transferable-guided Attention Is All You Need for Video Domain Adaptationn},
-    author={Sacilotti, Andre and dos Santos, Samuel Felipe and Sebe, Nicu and Almeida, Jurandy},
-    booktitle={}
-    year={2024}
+@InProceedings{WACV_2025_Sacilotti,
+author = {A. {Sacilotti} and S. F. {Santos} and N. {Sebe} and J. {Almeida}},
+title = {Transferable-guided Attention Is All You Need for Video Domain Adaptation},
+pages = {1–11},
+booktitle = {IEEE/CVF Winter Conference on Applications of Computer Vision (WACV)},
+address = {Tucson, AZ, USA},
+month = {February 28 – March 4},
+year = {2025},
+publisher = {{IEEE}},
 }
 ```
 
