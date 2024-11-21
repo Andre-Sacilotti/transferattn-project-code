@@ -1,4 +1,4 @@
-name: vuda
+name: vuda5
 channels:
   - defaults
 dependencies:

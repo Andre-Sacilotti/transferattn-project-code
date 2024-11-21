@@ -37,7 +37,7 @@ class CWAcuuMeasurer(Measurer):
             confusion_matrix[t.long(), p.long()] += 1
 
         per_cls_accu = confusion_matrix.diag() / confusion_matrix.sum(1)
-        # print(per_cls_accu)
+        print("Per Class: ", per_cls_accu)
         return torch.mean(per_cls_accu)
 
 

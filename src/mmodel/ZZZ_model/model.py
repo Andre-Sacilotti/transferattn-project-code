@@ -3,6 +3,7 @@ from functools import partial
 import einops
 import numpy as np
 import torch
+import random
 import torch.distributed as dist
 from src.mmodel.ZZZ_model.networks.gradient_reverse_layer import GradReverseLayer
 from torch import nn
@@ -10,11 +11,12 @@ from torch.utils.data import DataLoader
 
 from .loss import HLoss
 from .networks.network import Discriminator
+from src.mmodel.old import FeatureEncoder, ResidualDialConvBlock, DiscrminiatorBlock, Classifier
 
 from src.transformer_utils import IBHead, TemporalModelling
 
 from src.mtrain.measurer import AcuuMeasurer, CWAcuuMeasurer
-from src.mtrain.partial_lr_scheduler import pStepLR
+from src.mtrain.partial_lr_scheduler import pStepLR, pCossine
 from src.mtrain.partial_optimzer import pAdam
 from src.transformer_utils import compute_ib_loss
 
@@ -52,6 +54,7 @@ class ZZZ_model(TrainableModel):
         self.ib_loss = ib_loss
 
         self.numF = params.sampled_frame
+        self.params = params
 
         # Calling the Super Class
         super().__init__(params)
@@ -78,13 +81,21 @@ class ZZZ_model(TrainableModel):
             pin_memory=False,
         )
 
+        # def _init_fn(worker_id):
+        #     worker_seed = 42 % 2**32
+        #     np.random.seed(worker_seed)
+        #     random.seed(worker_seed)
+
+        # g = torch.Generator()
+        # g.manual_seed(self.params.random_seed)
+
         train_loader = {
             "source": _DataLoader(
-                source_dset, drop_last=True, sampler=source_dset.sampler
+                source_dset, drop_last=True, sampler=source_dset.sampler#, worker_init_fn=_init_fn, generator=g
             ),
-            "target": _DataLoader(target_dset, drop_last=True, shuffle=True),
+            "target": _DataLoader(target_dset, drop_last=True, shuffle=True)#, worker_init_fn=_init_fn, generator=g),
         }
-        eval_loader = _DataLoader(eval_dset, drop_last=False)
+        eval_loader = _DataLoader(eval_dset, drop_last=False)#, worker_init_fn=_init_fn, generator=g)
 
         measurer = [AcuuMeasurer(), CWAcuuMeasurer()]
         return train_loader, eval_loader, measurer
@@ -200,21 +211,27 @@ class ZZZ_model(TrainableModel):
 
         # Parts of the network that will be trainned
         self.loss_opts = [
+            'F_e', 'C', 'D',
             "temporalModelling",
             "temporalEmbedding",
             "pre",
             "mlp_head",
-            "to_patch_embedding",
+            "to_patch_embedding"
         ]
 
-        action_classifier = nn.Linear(self.hidden_size, self.cls_num)
         soft_entropy_criterion = HLoss()
         cross_entropy_criterion = torch.nn.CrossEntropyLoss()
+
+        bottleneck = 256
 
         # Returning all the parts of the network.
         return {
             "CEL": cross_entropy_criterion,
             "HL": soft_entropy_criterion,
+            'F_e': FeatureEncoder(FEATURE_DIM, bottleneck),
+            'F_s': ResidualDialConvBlock(bottleneck, [1, 3, 7, 15], self.coeff),
+            'D': DiscrminiatorBlock(bottleneck, [51, 45, 31, 1]),
+            'C': Classifier(bottleneck, self.cls_num),
             "BCEt": loss,
             "m": m,
             "pre": pre,
@@ -222,7 +239,7 @@ class ZZZ_model(TrainableModel):
             "temporalEmbedding": temporalEmbedding,
             "mlp_head": mlp_head,
             "to_patch_embedding": to_patch_embedding,
-            "C_adapt": action_classifier,
+            "C_adapt": nn.Linear(self.hidden_size, self.cls_num),
             "ibhead": ibhead,
         }
 
@@ -258,8 +275,10 @@ class ZZZ_model(TrainableModel):
         xs = xs.mean(dim=0)
         xt = xt.mean(dim=0)
 
-        xs = (xs / xs.norm(dim=-1, keepdim=True)) / 0.07
-        xt = (xt / xt.norm(dim=-1, keepdim=True)) / 0.07
+        xs = (xs / xs.norm(dim=-1, keepdim=True)) 
+        xs = xs / 0.07
+        xt = (xt / xt.norm(dim=-1, keepdim=True))
+        xt = xt / 0.07
 
         cls_s = self.C_adapt(xs)
         cls_t = self.C_adapt(xt)
@@ -284,7 +303,7 @@ class ZZZ_model(TrainableModel):
                 self.source_queue_y,
                 loss=self.ib_weight,
             )
-            loss_ib += loss
+            loss_entropy_at_adapt += loss
 
             self.dequeue_and_enqueue(projs, projt, strg, pseudo_y)
 
@@ -307,9 +326,10 @@ class ZZZ_model(TrainableModel):
         loss_adv_tgt_ = 0
         loss_adv_src_ = 0
 
-        sfeat = data["source"][: self.sample_number]
+        sfeat = data["source"][:self.sample_number]
         y_src = data["source"][self.sample_number]
-        tfeat = data["target"][: self.sample_number]
+
+        tfeat = data["target"][:self.sample_number]
 
         sfeat_0 = [self.to_patch_embedding(i) for i in sfeat]
         tfeat_0 = [self.to_patch_embedding(i) for i in tfeat]
@@ -345,8 +365,8 @@ class ZZZ_model(TrainableModel):
 
         with self.optimize_config(
             optimer=pAdam(lr=self.cfg.lr, weight_decay=0.0005),
-            lr_scheduler=pStepLR(
-                step_size=self.cfg.lr_decay_epoch, gamma=self.cfg.lr_gamma
+            lr_scheduler=pCossine(
+                epochs=300
             ),
         ):
             self.optimize_loss("global_loss", L, self.loss_opts)
@@ -356,10 +376,10 @@ class ZZZ_model(TrainableModel):
         batch_size = feats[0].shape[0]
 
         # Patch embedding every backbone feature
-        feats = [self.to_patch_embedding(feat) for feat in feats]
+        feats = [self.to_patch_embedding(torch.cat([feat, feat], 0)) for feat in feats]
 
         # Forward the first clip
-        xs = feats[0]
+        xs = feats[0][batch_size:]
         xs = einops.rearrange(xs.float(), "b t c -> t b c", t=self.numF)
         tempEmbedding = einops.repeat(
             self.temporalEmbedding(torch.arange(self.numF).to(feats[0].device)),
@@ -369,12 +389,13 @@ class ZZZ_model(TrainableModel):
         xs = xs + tempEmbedding.to(feats[0].device)
         xs, _, _, _ = self.temporalModelling(xs, posi_emb=None, domain="target")
         xs = xs.mean(dim=0)
-        xs = (xs / xs.norm(dim=-1, keepdim=True)) / 0.07
+        xs = (xs / xs.norm(dim=-1, keepdim=True))
+        xs = xs / 0.07
         pred = self.C_adapt(xs)
 
         # Forward the remaining clip
         for i in range(1, self.sample_number):
-            xs = feats[i]
+            xs = feats[i][batch_size:]
             xs = einops.rearrange(xs.float(), "b t c -> t b c", t=self.numF)
             tempEmbedding = einops.repeat(
                 self.temporalEmbedding(torch.arange(self.numF).to(feats[i].device)),
@@ -384,7 +405,8 @@ class ZZZ_model(TrainableModel):
             xs = xs + tempEmbedding.to(feats[i].device)
             xs, _, _, _ = self.temporalModelling(xs, posi_emb=None, domain="target")
             xs = xs.mean(dim=0)
-            xs = (xs / xs.norm(dim=-1, keepdim=True)) / 0.07
+            xs = (xs / xs.norm(dim=-1, keepdim=True))
+            xs = xs / 0.07
 
             pred += self.C_adapt(xs)
 

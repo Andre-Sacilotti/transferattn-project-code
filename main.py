@@ -17,9 +17,6 @@ HEADS = 8
 DROPOUT = 0.2
 MODEL = "ZZZ_model"
 
-torch.cuda.empty_cache()
-torch.backends.cudnn.deterministic = True
-torch.backends.cudnn.benchmark = False
 
 if params.dataset == "UCF_HMDB_I3D":
     if params.source == "ucf":
@@ -48,6 +45,9 @@ params.update(experiment_parser)
 params = Namespace(**params)
 
 if params.random_seed is not None:
+    torch.cuda.empty_cache()
+    torch.backends.cudnn.benchmark = True
+
     torch.manual_seed(params.random_seed)
     torch.cuda.manual_seed_all(params.random_seed)
     np.random.seed(params.random_seed)
