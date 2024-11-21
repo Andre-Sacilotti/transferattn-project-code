@@ -34,6 +34,5 @@ p.add_argument("--use_ib_loss", action="store_true")
 p.add_argument("--use_adv_loss", action="store_true")
 
 p.add_argument("--use_MDTA", action="store_true")
-p.add_argument("--use_IB", action="store_true")
 
 params = p.parse_args()

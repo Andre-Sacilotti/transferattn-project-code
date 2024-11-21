@@ -83,7 +83,7 @@ The experiments were run on the following GPUS: GTX 1080 Ti, and Titan X. Some v
 
 ## Acknowledgement
 
-We acknowledge the use of the following public resources in the development of this work: [UCF<sub>101</sub>](https://www.crcv.ucf.edu/data/UCF101.php),[HMDB<sub>51</sub>](https://serre-lab.clps.brown.edu/resource/hmdb-a-large-human-motion-database), [MA2LT-D](https://github.com/justchenpp/MA2L-TD), [NEC-Drone](https://github.com/jinwchoi/NEC-Drone-Dataset), [UDAVT](https://github.com/vturrisi/UDAVT) and [TranSVAE](https://github.com/ldkong1205/TranSVAE)
+We acknowledge the use of the following public resources in the development of this work: [UCF<sub>101</sub>](https://www.crcv.ucf.edu/data/UCF101.php),[HMDB<sub>51</sub>](https://serre-lab.clps.brown.edu/resource/hmdb-a-large-human-motion-database), [NEC-Drone](https://github.com/jinwchoi/NEC-Drone-Dataset), [UDAVT](https://github.com/vturrisi/UDAVT) and [TranSVAE](https://github.com/ldkong1205/TranSVAE). Special acknowledge for [MA2LT-D](https://github.com/justchenpp/MA2L-TD) who was the base of our code development.
 
 
 ## Citation
