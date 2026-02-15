@@ -1,0 +1,7 @@
+0 walking
+1 running
+2 jumping
+3 drinking water from a bottle  
+4 throwing an object
+5 shaking hands
+6 hugging

@@ -1,0 +1,13 @@
+0 marching
+1 shaking hands
+2 jogging
+3 running on treadmill
+4 drinking beer
+5 throwing discus
+6 javelin throw
+7 high jump
+8 throwing axe
+9 hugging
+10 throwing ball
+11 shot put
+12 jumping into pool
